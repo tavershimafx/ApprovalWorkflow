@@ -1,34 +1,39 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApprovalSystem.Models
 {
-    [Table("Approval.UserTokens")]
+    [Table("Approval.Users")]
     [Index(nameof(CreatedById), IsUnique = false)]
     [Index(nameof(UpdatedById), IsUnique = false)]
-    public class UserToken : IdentityUserToken<long>, IModelBase<long>
+    public class User : IdentityUser<long>, IModelBase<long>
     {
-        public UserToken() : base()
+        public User() : base()
         {
+            Status = EntityStatus.Active;
         }
 
-        public long Id { get; set; }
-        public string ConcurrencyStamp { get; set; }
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public EntityStatus Status { get; set; }
 
         [ForeignKey(nameof(CreatedBy))]
-        public long CreatedById { get; set; }
+        public long? CreatedById { get; set; }
 
         public User CreatedBy { get; set; }
 
         public DateTimeOffset DateCreated { get; set; }
 
         [ForeignKey(nameof(UpdatedBy))]
-        public long UpdatedById { get; set; }
+        public long? UpdatedById { get; set; }
 
         public User UpdatedBy { get; set; }
 
         public DateTimeOffset? LastUpdated { get; set; }
+
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

@@ -13,6 +13,6 @@ namespace ApprovalSystem.Models
         public string ApprovalHashId { get; set; }
 
         [Required]
-        public ResourceState ResourceState { get; set; }
+        public ApprovalStatus ApprovalStatus { get; set; }
     }
 }

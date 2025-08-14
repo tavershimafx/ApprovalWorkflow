@@ -16,11 +16,11 @@ namespace ApprovalSystem.Data
 
         IQueryable<T> AsQueryable(Expression<Func<T, bool>> expression);
 
+        IQueryable<T> AsUnFilteredQueryable();
+
         T FirstOrDefault();
 
         T FirstOrDefault(Expression<Func<T, bool>> expression);
-
-        IEnumerable<T> Where(Expression<Func<T, bool>> expression);
 
         IDbContextTransaction BeginTransaction();
 

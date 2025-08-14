@@ -1,14 +1,17 @@
+using ApprovalSystem.Extensions;
 using ApprovalSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace ApprovalSystem.Data
 {
-    public class Repository<K, T> : IRepository<K, T> where T : BaseModel<K>, new()
+    public class Repository<K, T> : IRepository<K, T> where T : class, IModelBase<K>, new()
     {
-        private readonly ILogger<IRepository<K, T>> _logger;
-        public Repository(ApplicationDbContext context, ILogger<IRepository<K, T>> logger)
+        private readonly Serilog.ILogger _logger;
+        public Repository(ApplicationDbContext context, Serilog.ILogger logger)
         {
             Context = context;
             DbSet = Context.Set<T>();
@@ -74,27 +77,31 @@ namespace ApprovalSystem.Data
 
         public virtual IQueryable<T> AsQueryable()
         {
-            return DbSet;
+            ThrowIfApprovableEntity();
+            return DbSet.Where(t => t.Status == EntityStatus.Active);
         }
 
         public virtual IQueryable<T> AsQueryable(Expression<Func<T, bool>> expression)
         {
-            return DbSet.Where(expression);
+            ThrowIfApprovableEntity();
+            return DbSet.Where(expression.AndAlso(t => t.Status == EntityStatus.Active));
         }
 
-        public T FirstOrDefault()
+        public virtual IQueryable<T> AsUnFilteredQueryable()
         {
-            return DbSet.FirstOrDefault();
+            return DbSet.Where(t => t.Status != EntityStatus.PermanentDelete);
         }
 
-        public T FirstOrDefault(Expression<Func<T, bool>> expression)
+        public virtual T FirstOrDefault()
         {
-            return DbSet.FirstOrDefault(expression);
+            ThrowIfApprovableEntity();
+            return DbSet.FirstOrDefault(t => t.Status != EntityStatus.PermanentDelete);
         }
 
-        public IEnumerable<T> Where(Expression<Func<T, bool>> expression)
+        public virtual T FirstOrDefault(Expression<Func<T, bool>> expression)
         {
-            return DbSet.Where(expression);
+            ThrowIfApprovableEntity();
+            return DbSet.FirstOrDefault(expression.AndAlso(t => t.Status != EntityStatus.PermanentDelete));
         }
 
         public async Task DeleteAsync(K key)
@@ -130,7 +137,17 @@ namespace ApprovalSystem.Data
         public void Update(T model)
         {
             if (model != null)
+            {
+                Context.ShadowIds.Add(model.Id);
                 DbSet.Update(model);
+            }
+        }
+
+        private void ThrowIfApprovableEntity()
+        {
+            if (typeof(T).IsAssignableTo(typeof(IApprovableEntity<K>)))
+                throw new InvalidOperationException("Cannot perform the requested operation because the related entity is of type" +
+                    "IApprovableEntity. Use the appropriate repository interface to access or modify the related entity");
         }
     }
 }

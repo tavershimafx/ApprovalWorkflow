@@ -29,18 +29,20 @@ namespace ApprovalSystem.Models
 
         public K Id { get; set; }
 
+        public EntityStatus Status { get; set; }
+
         [ConcurrencyCheck]
         public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString("N").Normalize();
 
         [ForeignKey(nameof(CreatedBy))]
-        public long CreatedById { get; set; }
+        public long? CreatedById { get; set; }
 
         public User CreatedBy { get; set; }
 
         public DateTimeOffset DateCreated { get; set; }
 
         [ForeignKey(nameof(UpdatedBy))]
-        public long UpdatedById { get; set; }
+        public long? UpdatedById { get; set; }
 
         public User UpdatedBy { get; set; }
 

@@ -31,7 +31,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -40,7 +40,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<DateTimeOffset?>("LastUpdated")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -64,7 +67,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -79,7 +82,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -102,11 +108,14 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<string>("ApprovalHashId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -126,18 +135,20 @@ namespace ApprovalWorkflow.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int>("ResourceState")
-                        .HasColumnType("int");
-
                     b.Property<long>("ShadowId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovalHashId");
+                    b.HasIndex("ApprovalHashId")
+                        .IsUnique()
+                        .HasFilter("[ApprovalHashId] IS NOT NULL");
 
                     b.HasIndex("CreatedById");
 
@@ -150,7 +161,7 @@ namespace ApprovalWorkflow.Migrations
 
                     b.ToTable("Approval.Roles", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Role_ApprovalRequired", "(ResourceState = '$1' AND ApprovalHashId IS NOT NULL) OR (ResourceState <> '$1')");
+                            t.HasCheckConstraint("CK_Role_ApprovalRequired", "(ApprovalStatus = '1' AND (ApprovalHashId IS NULL OR ApprovalHashId = '')) OR (ApprovalStatus <> '1' AND (ApprovalHashId IS NOT NULL AND ApprovalHashId <> ''))");
                         });
                 });
 
@@ -172,7 +183,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -184,7 +195,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<long>("RoleId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -213,7 +227,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -261,10 +275,13 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.Property<string>("UserName")
@@ -306,7 +323,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -315,7 +332,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<DateTimeOffset?>("LastUpdated")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.Property<long>("UserId")
@@ -344,7 +364,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -359,7 +379,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.Property<long>("UserId")
@@ -388,7 +411,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -400,7 +423,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<DateTimeOffset?>("LastUpdated")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.HasKey("UserId", "RoleId");
@@ -429,7 +455,7 @@ namespace ApprovalWorkflow.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long?>("CreatedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -441,7 +467,10 @@ namespace ApprovalWorkflow.Migrations
                     b.Property<DateTimeOffset?>("LastUpdated")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<long>("UpdatedById")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value")
@@ -461,14 +490,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.ApprovalHash", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.ApprovalHash", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CreatedBy");
 
@@ -480,14 +507,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.ProcessType", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.ProcessType", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CreatedBy");
 
@@ -504,14 +529,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.Role", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.Role", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CreatedBy");
 
@@ -523,8 +546,7 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.RoleClaim", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.Role", null)
                         .WithMany()
@@ -535,8 +557,7 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.RoleClaim", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CreatedBy");
 
@@ -548,14 +569,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.User", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.User", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CreatedBy");
 
@@ -567,14 +586,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserClaim", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserClaim", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", null)
                         .WithMany()
@@ -592,14 +609,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserLogin", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserLogin", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", null)
                         .WithMany()
@@ -617,8 +632,7 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserRole", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.Role", null)
                         .WithMany()
@@ -629,8 +643,7 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserRole", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", null)
                         .WithMany()
@@ -648,14 +661,12 @@ namespace ApprovalWorkflow.Migrations
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserToken", "CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
                         .HasForeignKey("ApprovalSystem.Models.UserToken", "UpdatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", null)
                         .WithMany()

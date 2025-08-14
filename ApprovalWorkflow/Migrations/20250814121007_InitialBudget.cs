@@ -19,9 +19,10 @@ namespace ApprovalWorkflow.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -58,10 +59,11 @@ namespace ApprovalWorkflow.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
@@ -87,10 +89,11 @@ namespace ApprovalWorkflow.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
@@ -114,10 +117,11 @@ namespace ApprovalWorkflow.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -151,10 +155,11 @@ namespace ApprovalWorkflow.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Id = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<long>(type: "bigint", nullable: false)
@@ -188,10 +193,11 @@ namespace ApprovalWorkflow.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Id = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -224,11 +230,12 @@ namespace ApprovalWorkflow.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ShadowId = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ApprovalHashId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ResourceState = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    ApprovalStatus = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -237,7 +244,7 @@ namespace ApprovalWorkflow.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Approval.Roles", x => x.Id);
-                    table.CheckConstraint("CK_Role_ApprovalRequired", "(ResourceState = '$1' AND ApprovalHashId IS NOT NULL) OR (ResourceState <> '$1')");
+                    table.CheckConstraint("CK_Role_ApprovalRequired", "(ApprovalStatus = '1' AND (ApprovalHashId IS NULL OR ApprovalHashId = '')) OR (ApprovalStatus <> '1' AND (ApprovalHashId IS NOT NULL AND ApprovalHashId <> ''))");
                     table.ForeignKey(
                         name: "FK_Approval.Roles_Approval.ApprovalHashes_ApprovalHashId",
                         column: x => x.ApprovalHashId,
@@ -261,10 +268,11 @@ namespace ApprovalWorkflow.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     RoleId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -298,10 +306,11 @@ namespace ApprovalWorkflow.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     RoleId = table.Column<long>(type: "bigint", nullable: false),
                     Id = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedById = table.Column<long>(type: "bigint", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
                     LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
@@ -369,7 +378,9 @@ namespace ApprovalWorkflow.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Approval.Roles_ApprovalHashId",
                 table: "Approval.Roles",
-                column: "ApprovalHashId");
+                column: "ApprovalHashId",
+                unique: true,
+                filter: "[ApprovalHashId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Approval.Roles_CreatedById",

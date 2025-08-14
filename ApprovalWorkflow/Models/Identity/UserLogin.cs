@@ -5,28 +5,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApprovalSystem.Models
 {
-    [Table("Approval.RoleClaims")]
+    [Table("Approval.UserLogins")]
     [Index(nameof(CreatedById), IsUnique = false)]
     [Index(nameof(UpdatedById), IsUnique = false)]
-    public class RoleClaim : IdentityRoleClaim<long>, IModelBase<long>
+    public class UserLogin : IdentityUserLogin<long>, IModelBase<long>
     {
-        public RoleClaim() : base()
+        public UserLogin() : base()
         {
+            Status = EntityStatus.Active;
         }
 
-        public new long Id { get; set; }
+        public long Id { get; set; }
+
+        public EntityStatus Status { get; set; }
 
         public string ConcurrencyStamp { get; set; }
 
         [ForeignKey(nameof(CreatedBy))]
-        public long CreatedById { get; set; }
+        public long? CreatedById { get; set; }
 
         public User CreatedBy { get; set; }
 
         public DateTimeOffset DateCreated { get; set; }
 
         [ForeignKey(nameof(UpdatedBy))]
-        public long UpdatedById { get; set; }
+        public long? UpdatedById { get; set; }
 
         public User UpdatedBy { get; set; }
 

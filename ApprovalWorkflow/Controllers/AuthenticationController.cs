@@ -12,11 +12,11 @@ namespace ApprovalSystem.Controllers;
 [Route("identity")]
 public class AuthenticationController : ControllerBase
 {
-    private readonly ILogger<AuthenticationController> _logger;
+    private readonly Serilog.ILogger _logger;
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
 
-    public AuthenticationController(ILogger<AuthenticationController> logger, UserManager<User> userManager,
+    public AuthenticationController(Serilog.ILogger logger, UserManager<User> userManager,
         SignInManager<User> signInManager)
     {
         _logger = logger;
@@ -34,7 +34,7 @@ public class AuthenticationController : ControllerBase
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                _logger.LogInformation("User logged in.");
+                _logger.Information("User logged in.");
                 return Ok(TaskResult.Ok());
             }
 
@@ -55,17 +55,15 @@ public class AuthenticationController : ControllerBase
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
+                UserName = model.Email,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, "Member");
-                _logger.LogInformation("User created a new account with password.");
+                _logger.Information("User created a new account with password.");
 
-                var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
                 await _userManager.ConfirmEmailAsync(user, code);
 
                 await _signInManager.SignInAsync(user, isPersistent: false);

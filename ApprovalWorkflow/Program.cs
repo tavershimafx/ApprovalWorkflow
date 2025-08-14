@@ -1,5 +1,6 @@
 using System.Reflection;
 using ApprovalSystem.Data;
+using ApprovalSystem.Extensions;
 using ApprovalSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,8 +16,8 @@ Log.Logger = new LoggerConfiguration()
                  .Enrich.FromLogContext()
                  .CreateLogger();
 
-try
-{
+//try
+//{
     Log.Information($"Starting Approval Workflow at {DateTime.Now}");
     var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,7 @@ try
     {
         options.SameSite = SameSiteMode.Strict;
         options.HttpOnly = true;
-        options.MaxAge = TimeSpan.FromDays(7);
+        options.MaxAge = TimeSpan.FromDays(2);
         options.Secure = true;
         options.IsEssential = true;
     });
@@ -62,8 +63,7 @@ try
     #endregion
 
     #region application services
-    builder.Services.AddSingleton(typeof(IRepository<,>), typeof(Repository<,>));
-    builder.Services.AddSingleton(typeof(IApprovableRepository<,>), typeof(ApprovableRepository<,>));
+    builder.Services.AddApplicationServices();
     #endregion
 
     #region Identity configurations
@@ -72,6 +72,7 @@ try
         .AddUserManager<UserManager<User>>()
         .AddRoleManager<RoleManager<Role>>()
         .AddSignInManager<SignInManager<User>>()
+        .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<ApplicationDbContext>();
 
     builder.Services.Configure<IdentityOptions>(options =>
@@ -180,8 +181,8 @@ try
 #pragma warning restore ASP0014 // Suggest using top level route registrations
 
     app.Run();
-}
-catch (Exception e)
-{
-    Log.Fatal(e, "Application host failed to start");
-}
+//}
+//catch (Exception e)
+//{
+//    Log.Fatal(e, "Application host failed to start");
+//}

@@ -7,12 +7,12 @@ namespace ApprovalSystem.Models
     /// A generic base model for all entities which need to pass through approval workflow
     /// </summary>
     /// <typeparam name="K"></typeparam>
-    [Index(nameof(ApprovalHashId), IsUnique = false)]
+    [Index(nameof(ApprovalHashId), IsUnique = true)]
     public abstract class ApprovalBaseModel<K> : BaseModel<K>, IApprovableEntity<K>
     {
         public ApprovalBaseModel()
         {
-            ResourceState = ResourceState.New;
+            ApprovalStatus = ApprovalStatus.New;
         }
 
         public K ShadowId { get; set; }
@@ -20,7 +20,7 @@ namespace ApprovalSystem.Models
         public string ApprovalHashId { get; set; }
 
         [Required]
-        public ResourceState ResourceState { get; set; }
+        public ApprovalStatus ApprovalStatus { get; set; }
     }
 
 
