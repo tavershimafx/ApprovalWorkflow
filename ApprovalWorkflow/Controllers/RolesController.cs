@@ -8,7 +8,7 @@ namespace ApprovalSystem.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("roles")]
+[Route("admin/roles")]
 public class RolesController : ControllerBase
 {
     private readonly IRoleService _roleService;
@@ -18,7 +18,7 @@ public class RolesController : ControllerBase
         _roleService = roleService;
     }
 
-    [HttpGet("admin-all-roles")]
+    [HttpGet("nf-all-roles")]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
     public IActionResult AdminAllRoles()

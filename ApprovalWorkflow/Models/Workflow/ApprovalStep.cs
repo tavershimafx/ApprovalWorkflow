@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ApprovalSystem.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApprovalSystem.Models
 {
     [Table("Approval.ApprovalSteps")]
+    [Index(nameof(RoleId), IsUnique = false)]
+    [Index(nameof(ApprovalTypeId), IsUnique = false)]
     public class ApprovalStep : BaseModel, IExtendableEntity
     {
         /// <summary>

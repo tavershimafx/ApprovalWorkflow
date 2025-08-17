@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApprovalSystem.Models
 {
     [Table("Approval.ApprovalItems")]
+    [Index(nameof(AuthoringUserId), IsUnique = false)]
     public class ApprovalItem : BaseModel
     {
         [Required]
