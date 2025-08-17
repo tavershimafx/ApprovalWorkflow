@@ -92,6 +92,11 @@ namespace ApprovalSystem.Data
             return DbSet.Where(t => t.Status != EntityStatus.PermanentDelete);
         }
 
+        public virtual IQueryable<T> AsUnFilteredQueryable(Expression<Func<T, bool>> expression)
+        {
+            return DbSet.Where(expression.AndAlso(t => t.Status != EntityStatus.PermanentDelete));
+        }
+
         public virtual T FirstOrDefault()
         {
             ThrowIfApprovableEntity();

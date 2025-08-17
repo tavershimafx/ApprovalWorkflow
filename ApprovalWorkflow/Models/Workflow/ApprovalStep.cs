@@ -1,16 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ApprovalSystem.Interfaces;
 
 namespace ApprovalSystem.Models
 {
     [Table("Approval.ApprovalSteps")]
-    public class ApprovalStep : BaseModel
+    public class ApprovalStep : BaseModel, IExtendableEntity
     {
         /// <summary>
         /// A name tag given to the step. E.g Project Management Concurrence
         /// </summary>
         [Required]
         public string Name { get; set; }
+
+        public long ApprovalTypeId{ get; set; }
 
         /// <summary>
         /// The position in the approval workflow which the step should come
@@ -36,6 +39,6 @@ namespace ApprovalSystem.Models
         /// to <see cref="ApprovalStepRule.SpecificUsers"/>
         /// </summary>
         [StringLength(500)]
-        public string XUserIds { get; set; }
+        public string ExtensionProperty { get; set; }
     }
 }

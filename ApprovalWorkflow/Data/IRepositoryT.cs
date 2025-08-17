@@ -18,6 +18,8 @@ namespace ApprovalSystem.Data
 
         IQueryable<T> AsUnFilteredQueryable();
 
+        IQueryable<T> AsUnFilteredQueryable(Expression<Func<T, bool>> expression);
+
         T FirstOrDefault();
 
         T FirstOrDefault(Expression<Func<T, bool>> expression);
