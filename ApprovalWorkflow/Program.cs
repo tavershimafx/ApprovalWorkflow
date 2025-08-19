@@ -1,6 +1,7 @@
 using System.Reflection;
 using ApprovalSystem.Data;
 using ApprovalSystem.Extensions;
+using ApprovalSystem.Helpers;
 using ApprovalSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,8 +17,8 @@ Log.Logger = new LoggerConfiguration()
                  .Enrich.FromLogContext()
                  .CreateLogger();
 
-//try
-//{
+try
+{
     Log.Information($"Starting Approval Workflow at {DateTime.Now}");
     var builder = WebApplication.CreateBuilder(args);
 
@@ -147,8 +148,9 @@ Log.Logger = new LoggerConfiguration()
             .AllowAnyMethod();
         });
     });
-    #endregion
+#endregion
 
+    builder.Services.SeedDatabase();
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -181,8 +183,8 @@ Log.Logger = new LoggerConfiguration()
 #pragma warning restore ASP0014 // Suggest using top level route registrations
 
     app.Run();
-//}
-//catch (Exception e)
-//{
-//    Log.Fatal(e, "Application host failed to start");
-//}
+}
+catch (Exception e)
+{
+    Log.Fatal(e, "Application host failed to start");
+}

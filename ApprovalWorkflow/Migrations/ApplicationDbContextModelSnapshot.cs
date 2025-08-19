@@ -55,7 +55,168 @@ namespace ApprovalWorkflow.Migrations
                     b.ToTable("Approval.ApprovalHashes");
                 });
 
-            modelBuilder.Entity("ApprovalSystem.Models.ProcessType", b =>
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
+                    b.Property<long>("AuthoringUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("DateCreated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("LastUpdated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthoringUserId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Approval.ApprovalItems");
+                });
+
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalRequest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ApprovalTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte>("CurrentStep")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTimeOffset>("DateCreated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("LastUpdated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("RequestAction")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovalTypeId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Approval.ApprovalRequests");
+                });
+
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalStep", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ApprovalTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("DateCreated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ExtensionProperty")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset?>("LastUpdated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("NumberOfUsers")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("Order")
+                        .HasColumnType("tinyint");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Rule")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UpdatedById")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovalTypeId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Approval.ApprovalSteps");
+                });
+
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalType", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -80,6 +241,7 @@ namespace ApprovalWorkflow.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -94,7 +256,7 @@ namespace ApprovalWorkflow.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Approval.ProcessTypes");
+                    b.ToTable("Approval.ApprovalTypes");
                 });
 
             modelBuilder.Entity("ApprovalSystem.Models.Role", b =>
@@ -502,16 +664,91 @@ namespace ApprovalWorkflow.Migrations
                     b.Navigation("UpdatedBy");
                 });
 
-            modelBuilder.Entity("ApprovalSystem.Models.ProcessType", b =>
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalItem", b =>
                 {
+                    b.HasOne("ApprovalSystem.Models.User", "AuthoringUser")
+                        .WithMany()
+                        .HasForeignKey("AuthoringUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
                         .WithOne()
-                        .HasForeignKey("ApprovalSystem.Models.ProcessType", "CreatedById")
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalItem", "CreatedById")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
                         .WithOne()
-                        .HasForeignKey("ApprovalSystem.Models.ProcessType", "UpdatedById")
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalItem", "UpdatedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AuthoringUser");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalRequest", b =>
+                {
+                    b.HasOne("ApprovalSystem.Models.ApprovalType", "ApprovalType")
+                        .WithMany()
+                        .HasForeignKey("ApprovalTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
+                        .WithOne()
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalRequest", "CreatedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
+                        .WithOne()
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalRequest", "UpdatedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ApprovalType");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalStep", b =>
+                {
+                    b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
+                        .WithOne()
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalStep", "CreatedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ApprovalSystem.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
+                        .WithOne()
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalStep", "UpdatedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("ApprovalSystem.Models.ApprovalType", b =>
+                {
+                    b.HasOne("ApprovalSystem.Models.User", "CreatedBy")
+                        .WithOne()
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalType", "CreatedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ApprovalSystem.Models.User", "UpdatedBy")
+                        .WithOne()
+                        .HasForeignKey("ApprovalSystem.Models.ApprovalType", "UpdatedById")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CreatedBy");

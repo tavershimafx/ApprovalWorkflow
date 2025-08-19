@@ -11,26 +11,19 @@ namespace ApprovalSystem.Data
     public class ApplicationDbContext : IdentityDbContext<User, Role, long, UserClaim,
         UserRole, UserLogin, RoleClaim, UserToken>
     {
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
         /// Track the shadow ids of entities that are set for approval.
         /// </summary>
         public ArrayList ShadowIds { get; set; } = new(10);
 
-#if DEBUG
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IServiceProvider serviceProvider)
             : base(options)
         {
-           
+            _serviceProvider = serviceProvider;
         }
-#else
-public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor contextAccessor) 
-            : base(options)
-        {
-            _contextAccessor = contextAccessor;
-        }
-#endif
+
 
         #region Fluent Api Configuration
 
@@ -161,9 +154,6 @@ public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHtt
                     var c = $"({nameof(ApprovalBaseModel.ApprovalStatus)} = '{(int)ApprovalStatus.New}' AND ({nameof(ApprovalBaseModel.ApprovalHashId)} IS NULL OR {nameof(ApprovalBaseModel.ApprovalHashId)} = '')) OR " +
                         $"({nameof(ApprovalBaseModel.ApprovalStatus)} <> '{(int)ApprovalStatus.New}' AND ({nameof(ApprovalBaseModel.ApprovalHashId)} IS NOT NULL AND {nameof(ApprovalBaseModel.ApprovalHashId)} <> ''))";
 
-                    var k = $"(Status = 'New' AND (Hash IS NULL OR Hash = '')) OR " +
-                        $"(Status <> 'New' AND (Hash IS NOT NULL AND Hash <> ''))";
-
                     builder.Entity(item)
                     .ToTable(t => t.HasCheckConstraint($"CK_{item.Name}_ApprovalRequired", c));
 
@@ -178,10 +168,11 @@ public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHtt
 
         private void UpdateAuditColumns()
         {
+            IHttpContextAccessor contextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
             User user = null;
-            if (_contextAccessor?.HttpContext != null && _contextAccessor.HttpContext.User != null && _contextAccessor.HttpContext.User.Identity?.IsAuthenticated == true)
+            if (contextAccessor?.HttpContext != null && contextAccessor.HttpContext.User != null && contextAccessor.HttpContext.User.Identity?.IsAuthenticated == true)
             {
-                user = _contextAccessor.GetCurrentUser().GetAwaiter().GetResult();
+                user = contextAccessor.GetCurrentUser().GetAwaiter().GetResult();
             }
 
             var entries = ChangeTracker.Entries().Where(n => n.State == EntityState.Added || n.State == EntityState.Modified);

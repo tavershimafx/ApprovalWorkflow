@@ -19,6 +19,33 @@ namespace ApprovalSystem.Services
             _stepRepository = stepRepository;
         }
 
+        public TaskResult CreateApprovalType(ApprovalTypeModel model)
+        {
+            ApprovalType approvalType = new ()
+            {
+                Name = model.Name,
+                Description = model.Description,
+                FullImplementingInterface = model.FullImplementingInterface,
+                Status = EntityStatus.Active
+            };
+
+            var inter = Type.GetType(approvalType.FullImplementingInterface);
+            if (inter == null ||(inter.IsInterface && !inter.IsAssignableFrom(typeof(IApprovalStandard))))
+            {
+                return TaskResult.Fail("Cannot create the approval type because the provided interface " +
+                    $"does not implement the {nameof(IApprovalStandard)} interface.");
+            }
+            
+            if(_typeRepository.FirstOrDefault(n => n.FullImplementingInterface.ToUpper() == approvalType.FullImplementingInterface.ToUpper()) != null)
+            {
+                return TaskResult.Fail("Cannot create the approval type because an approval type with the same interface already exists.");
+            }
+
+            _typeRepository.Insert(approvalType);
+            _typeRepository.SaveChanges();
+            return TaskResult.Ok("Approval type created successfully.");
+        }
+
         /// <summary>
         /// <inheritdoc/>
         /// </summary>

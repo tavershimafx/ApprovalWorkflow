@@ -1,22 +1,21 @@
 ﻿using ApprovalSystem.Dtos;
 using ApprovalSystem.Interfaces;
 using ApprovalSystem.Models;
-using ApprovalSystem.Services;
 using ApprovalSystem.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApprovalSystem.Controllers;
 
-[ApiController]
 [Authorize]
+[ApiController]
 [Route("admin/approval-setup")]
 public class ApprovalSetupController : ControllerBase
 {
-    private readonly IApprovalSetup _approvaService;
-    public ApprovalSetupController(IApprovalSetup approvaService)
+    private readonly IApprovalSetup _approvalService;
+    public ApprovalSetupController(IApprovalSetup approvalService)
     {
-        _approvaService = approvaService;
+        _approvalService = approvalService;
     }
 
     [HttpGet("all-types")]
@@ -24,7 +23,7 @@ public class ApprovalSetupController : ControllerBase
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
     public IActionResult ListProcessTypes()
     {
-        var result = _approvaService.GetApprovalTypes();
+        var result = _approvalService.GetApprovalTypes();
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }
 
@@ -33,7 +32,7 @@ public class ApprovalSetupController : ControllerBase
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
     public IActionResult TypeDetails(long id)
     {
-        var result = _approvaService.GetApprovalType(id);
+        var result = _approvalService.GetApprovalType(id);
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }
 
@@ -44,7 +43,7 @@ public class ApprovalSetupController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var result = _approvaService.UpdateSteps(id, steps);
+            var result = _approvalService.UpdateSteps(id, steps);
             return result.Succeeded ? Ok(result) : BadRequest(result);
         }
 
@@ -58,7 +57,7 @@ public class ApprovalSetupController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var result = _approvaService.DeleteSteps(id, steps);
+            var result = _approvalService.DeleteSteps(id, steps);
             return result.Succeeded ? Ok(result) : BadRequest(result);
         }
 
@@ -71,6 +70,7 @@ public class ApprovalSetupController : ControllerBase
     {
         return Ok(Enum.GetNames(typeof(ApprovalStepRule)).Select(x => new { Text = x, Value = x }));
     }
+
     [HttpGet("entity-status")]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status200OK)]
     public IActionResult EntityStatus()

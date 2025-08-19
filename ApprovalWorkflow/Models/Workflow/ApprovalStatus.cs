@@ -1,5 +1,8 @@
 ﻿namespace ApprovalSystem.Models
 {
+    /// <summary>
+    /// A flag used to track the status of a shadow item which was requested for approval.
+    /// </summary>
     public enum ApprovalStatus
     {
         /// <summary>

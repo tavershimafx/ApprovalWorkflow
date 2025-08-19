@@ -15,6 +15,19 @@ namespace ApprovalSystem.Models
     {
         [Required]
         public string Name { get; set; }
+
+        /// <summary>
+        /// A description about what the process is all about
+        /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// The fullname of the interface including its namespace which implements
+        /// the basic IApprovalStandard for notifying clients about changes to the
+        /// approval process of an item which they requested.
+        /// E.g ApprovalWorkflow.Interfaces.IRoleService
+        /// </summary>
+        [Required]
+        public string FullImplementingInterface { get; set; }
     }
 }

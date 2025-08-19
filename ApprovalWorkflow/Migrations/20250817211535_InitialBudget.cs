@@ -82,12 +82,49 @@ namespace ApprovalWorkflow.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Approval.ProcessTypes",
+                name: "Approval.ApprovalItems",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Comments = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ApprovalStatus = table.Column<int>(type: "int", nullable: false),
+                    AuthoringUserId = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
+                    DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
+                    LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Approval.ApprovalItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalItems_Approval.Users_AuthoringUserId",
+                        column: x => x.AuthoringUserId,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalItems_Approval.Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalItems_Approval.Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Approval.ApprovalTypes",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -98,14 +135,14 @@ namespace ApprovalWorkflow.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Approval.ProcessTypes", x => x.Id);
+                    table.PrimaryKey("PK_Approval.ApprovalTypes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Approval.ProcessTypes_Approval.Users_CreatedById",
+                        name: "FK_Approval.ApprovalTypes_Approval.Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Approval.Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Approval.ProcessTypes_Approval.Users_UpdatedById",
+                        name: "FK_Approval.ApprovalTypes_Approval.Users_UpdatedById",
                         column: x => x.UpdatedById,
                         principalTable: "Approval.Users",
                         principalColumn: "Id");
@@ -263,6 +300,85 @@ namespace ApprovalWorkflow.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Approval.ApprovalRequests",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ApprovalTypeId = table.Column<long>(type: "bigint", nullable: false),
+                    CurrentStep = table.Column<byte>(type: "tinyint", nullable: false),
+                    EntityId = table.Column<long>(type: "bigint", nullable: false),
+                    RequestAction = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
+                    DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
+                    LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Approval.ApprovalRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalRequests_Approval.ApprovalTypes_ApprovalTypeId",
+                        column: x => x.ApprovalTypeId,
+                        principalTable: "Approval.ApprovalTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalRequests_Approval.Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalRequests_Approval.Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Approval.ApprovalSteps",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ApprovalTypeId = table.Column<long>(type: "bigint", nullable: false),
+                    Order = table.Column<byte>(type: "tinyint", nullable: false),
+                    RoleId = table.Column<long>(type: "bigint", nullable: false),
+                    Rule = table.Column<int>(type: "int", nullable: false),
+                    NumberOfUsers = table.Column<byte>(type: "tinyint", nullable: false),
+                    ExtensionProperty = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: true),
+                    DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
+                    LastUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Approval.ApprovalSteps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalSteps_Approval.Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Approval.Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalSteps_Approval.Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Approval.ApprovalSteps_Approval.Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Approval.Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Approval.RoleClaims",
                 columns: table => new
                 {
@@ -351,13 +467,63 @@ namespace ApprovalWorkflow.Migrations
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Approval.ProcessTypes_CreatedById",
-                table: "Approval.ProcessTypes",
+                name: "IX_Approval.ApprovalItems_AuthoringUserId",
+                table: "Approval.ApprovalItems",
+                column: "AuthoringUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalItems_CreatedById",
+                table: "Approval.ApprovalItems",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Approval.ProcessTypes_UpdatedById",
-                table: "Approval.ProcessTypes",
+                name: "IX_Approval.ApprovalItems_UpdatedById",
+                table: "Approval.ApprovalItems",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalRequests_ApprovalTypeId",
+                table: "Approval.ApprovalRequests",
+                column: "ApprovalTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalRequests_CreatedById",
+                table: "Approval.ApprovalRequests",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalRequests_UpdatedById",
+                table: "Approval.ApprovalRequests",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalSteps_ApprovalTypeId",
+                table: "Approval.ApprovalSteps",
+                column: "ApprovalTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalSteps_CreatedById",
+                table: "Approval.ApprovalSteps",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalSteps_RoleId",
+                table: "Approval.ApprovalSteps",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalSteps_UpdatedById",
+                table: "Approval.ApprovalSteps",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalTypes_CreatedById",
+                table: "Approval.ApprovalTypes",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approval.ApprovalTypes_UpdatedById",
+                table: "Approval.ApprovalTypes",
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
@@ -481,7 +647,13 @@ namespace ApprovalWorkflow.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Approval.ProcessTypes");
+                name: "Approval.ApprovalItems");
+
+            migrationBuilder.DropTable(
+                name: "Approval.ApprovalRequests");
+
+            migrationBuilder.DropTable(
+                name: "Approval.ApprovalSteps");
 
             migrationBuilder.DropTable(
                 name: "Approval.RoleClaims");
@@ -497,6 +669,9 @@ namespace ApprovalWorkflow.Migrations
 
             migrationBuilder.DropTable(
                 name: "Approval.UserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Approval.ApprovalTypes");
 
             migrationBuilder.DropTable(
                 name: "Approval.Roles");

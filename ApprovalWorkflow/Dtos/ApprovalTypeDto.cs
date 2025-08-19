@@ -6,6 +6,16 @@ using ApprovalSystem.Models;
 
 namespace ApprovalSystem.Dtos
 {
+    public class ApprovalTypeModel
+    {
+        [Required]
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        [Required]
+        public string FullImplementingInterface { get; set; }
+    }
     public class ApprovalTypeItem
     {
         public long Id { get; set; }

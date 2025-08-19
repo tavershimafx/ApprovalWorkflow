@@ -1,4 +1,5 @@
 ﻿using ApprovalSystem.Data;
+using ApprovalSystem.Helpers;
 using ApprovalSystem.Services;
 using System.Reflection;
 
@@ -20,13 +21,19 @@ namespace ApprovalSystem.Extensions
                 var implement = definedTypes.Where(t => t.IsAssignableTo(interfac) && t.IsClass && !t.IsAbstract).FirstOrDefault();
                 if (implement == null)
                 {
-                    throw new InvalidOperationException("Cannot register an interface without a type implementation. " +
+                    throw new InvalidOperationException($"Cannot register the interface: {interfac.FullName} without a type implementation. " +
                         "Either remove it or provide a class implementing the interface appropriately");
                 }
 
                 services.AddScoped(interfac, implement);
             }
 
+            return services;
+        }
+
+        public static IServiceCollection SeedDatabase(this IServiceCollection services)
+        {
+            RuntimeSeeding.SeedDatabase(services);
             return services;
         }
     }

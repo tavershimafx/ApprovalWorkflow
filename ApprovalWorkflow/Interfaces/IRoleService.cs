@@ -1,7 +1,8 @@
 ﻿using ApprovalSystem.Dtos;
+using ApprovalSystem.Services;
 using ApprovalSystem.Types;
 
-namespace ApprovalSystem.Services
+namespace ApprovalSystem.Interfaces
 {
     public interface IRoleService : IApplicationScopedService
     {
