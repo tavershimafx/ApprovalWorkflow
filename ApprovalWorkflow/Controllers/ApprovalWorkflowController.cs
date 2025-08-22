@@ -1,4 +1,6 @@
-﻿using ApprovalSystem.Interfaces;
+﻿using ApprovalSystem.Dtos;
+using ApprovalSystem.Extensions;
+using ApprovalSystem.Interfaces;
 using ApprovalSystem.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +13,12 @@ namespace ApprovalSystem.Controllers;
 public class ApprovalWorkflowController : ControllerBase
 {
     private readonly IWorkflow _workflowService;
-    public ApprovalWorkflowController(IWorkflow workflowService)
+    private readonly IHttpContextAccessor _context;
+
+    public ApprovalWorkflowController(IWorkflow workflowService, IHttpContextAccessor context)
     {
         _workflowService = workflowService;
+        _context = context;
     }
 
     [HttpGet("all-approvals")]
@@ -28,36 +33,39 @@ public class ApprovalWorkflowController : ControllerBase
     [HttpGet("approval-details")]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
-    public IActionResult ApprovalDetails()
+    public IActionResult ApprovalDetails(long id)
     {
-        var result = _workflowService.GetApprovalDetails(5);
+        var result = _workflowService.GetApprovalDetails(id);
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }
 
     [HttpPut("approval-item")]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
-    public IActionResult ApproveItem()
+    public async Task<IActionResult> ApproveItem([FromBody] WorkflowDto model)
     {
-        var result = _workflowService.ApproveItem();
+        var currentUser = (await _context.GetCurrentUser()).Id;
+        var result = _workflowService.ApproveItem(model.ItemId, model.Comment, currentUser);
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }
 
     [HttpPut("reject-item")]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
-    public IActionResult RejectItem()
+    public async Task<IActionResult> RejectItem([FromBody] WorkflowDto model)
     {
-        var result = _workflowService.RejectItem(5);
+        var currentUser = (await _context.GetCurrentUser()).Id;
+        var result = _workflowService.RejectItem(model.ItemId, model.Comment, currentUser);
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }
 
     [HttpPut("sendback-item")]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(TaskResult<string>), StatusCodes.Status400BadRequest)]
-    public IActionResult SendBackItem(long itemId, long toStep)
+    public async Task<IActionResult> SendBackItem([FromBody] WorkflowDto model)
     {
-        var result = _workflowService.SendBackStep();
+        var currentUser = (await _context.GetCurrentUser()).Id;
+        var result = _workflowService.SendBackStep(model.ItemId, model.Comment, currentUser);
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }
 

@@ -4,7 +4,6 @@ using ApprovalSystem.Helpers;
 using ApprovalSystem.Interfaces;
 using ApprovalSystem.Models;
 using ApprovalSystem.Types;
-using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApprovalSystem.Services
@@ -73,6 +72,51 @@ namespace ApprovalSystem.Services
             }
 
             return result;
+        }
+
+        public TaskResult UpdateItem(long itemId, object newState, long userId)
+        {
+            var item = _itemRepo.AsQueryable(x => x.Id == itemId)
+                .Include(n => n.ApprovalRequest).ThenInclude(n => n.ApprovalType)
+                .Include(n => n.ApprovalStep)
+                .FirstOrDefault();
+
+            if (item == null)
+            {
+                throw new InvalidOperationException("Approval item not found");
+            }
+
+            var steps = _stepRepo.AsQueryable(n => n.ApprovalTypeId == item.ApprovalRequest.ApprovalTypeId)
+                .Include(n => n.ApprovalType)
+                .AsNoTracking()
+                .OrderBy(k => k.Order);
+
+            var prevStep = steps.FirstOrDefault(k => k.Order == item.ApprovalStep.Order - 1);
+            if (prevStep == null)
+            {
+                return TaskResult.Fail("Cannot send back the current item to the previous step because it is from the first step");
+            }
+
+            var privilegeResult = HasPrivilegeForStep(item, item.ApprovalStep, userId);
+            if (!privilegeResult.Succeeded)
+            {
+                return privilegeResult;
+            }
+
+            if (HasApprovalForStep(item.ApprovalStepId, item.ApprovalRequestId, userId))
+            {
+                return TaskResult.Fail("Cannot send back the requested item because you have already " +
+                    "performed an action on this step.");
+            }
+
+            var standard = GetStandard(item.ApprovalRequest.ApprovalType.FullImplementingInterface);
+            var updateResult = standard.UpdateEntity(item.ApprovalRequest.EntityId, newState, userId);
+            if(updateResult.Succeeded)
+            {
+                return TaskResult.Ok("Request item updated successfully");
+            }
+
+            return updateResult;
         }
 
         /// <summary>
