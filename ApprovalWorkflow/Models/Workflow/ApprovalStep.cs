@@ -18,6 +18,8 @@ namespace ApprovalSystem.Models
 
         public long ApprovalTypeId{ get; set; }
 
+        public ApprovalType ApprovalType { get; set; }
+
         /// <summary>
         /// The position in the approval workflow which the step should come
         /// </summary>

@@ -97,6 +97,31 @@ namespace ApprovalSystem.Services
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
+        /// <param name="implementingInterface"></param>
+        /// <returns></returns>
+        public TaskResult<ApprovalTypeDetails> GetApprovalType<T>(T implementingInterface) where T : IApprovalStandard
+        {
+            var tp = _typeRepository.FirstOrDefault(n => n.FullImplementingInterface == implementingInterface.GetType().FullName);
+            if (tp != null)
+            {
+                var details = new ApprovalTypeDetails
+                {
+                    Description = tp.Description,
+                    Id = tp.Id,
+                    Name = tp.Name,
+                    Status = tp.Status,
+                    Steps = _stepRepository.AsUnFilteredQueryable(s => s.ApprovalTypeId == tp.Id).Select(n => ApprovalStepDto.FromStep(n))
+                };
+
+                return TaskResult<ApprovalTypeDetails>.Ok(details);
+            }
+
+            return TaskResult<ApprovalTypeDetails>.Fail("Invalid approval id. Not found.");
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         /// <returns></returns>
         public TaskResult<IEnumerable<ApprovalTypeItem>> GetApprovalTypes()
         {

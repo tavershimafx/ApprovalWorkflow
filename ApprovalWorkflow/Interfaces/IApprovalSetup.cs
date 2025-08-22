@@ -29,6 +29,14 @@ namespace ApprovalSystem.Interfaces
         TaskResult<ApprovalTypeDetails> GetApprovalType(long typeId);
 
         /// <summary>
+        /// Finds the approval type which is matched to the given <paramref name="implementingInterface"/>
+        /// The interface implements the necessary methods required to approve a specific model object
+        /// </summary>
+        /// <param name="implementingInterface"></param>
+        /// <returns></returns>
+        TaskResult<ApprovalTypeDetails> GetApprovalType<T>(T implementingInterface) where T:IApprovalStandard;
+
+        /// <summary>
         /// Updates existing steps, adds new steps and removes existing steps which are 
         /// no longer sent for update
         /// </summary>

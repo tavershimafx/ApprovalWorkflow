@@ -14,9 +14,11 @@ namespace ApprovalSystem.Data
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
-        /// Track the shadow ids of entities that are set for approval.
+        /// A list of ids of items of type IApprovableEntity. These ids are used to ignore
+        /// cloning modified IApprovalbleEntity(ies) the we want to actually persist the change
+        /// on the actual item
         /// </summary>
-        public ArrayList ShadowIds { get; set; } = new(10);
+        //public ArrayList ShadowIds { get; set; } = new(10);
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IServiceProvider serviceProvider)
             : base(options)
@@ -180,38 +182,55 @@ namespace ApprovalSystem.Data
             {
                 if (item.State == EntityState.Modified)
                 {
-                    var rsState = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalStatus));
-                    var currValue = rsState.GetValue(item.Entity);
+                    var aprStatProp = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalStatus));
                     // if not null then the entity is an approvable entity
                     // also check if the entity is changing from one state to another other than New
                     // as we need to associate every change with a new hash Id
-                    if (rsState != null && (int)currValue != (int)ApprovalStatus.New)
+                    if (aprStatProp != null && (int)aprStatProp.GetValue(item.Entity) != (int)ApprovalStatus.New)
                     {
-                        // if the old status is not same as the new status
+                        var currValue = aprStatProp.GetValue(item.Entity);
+                        // if the old status is not same as the new status, ensure it has a hasdId
+
+                        var hashIdInfo = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalHashId));
+                        var idVal = hashIdInfo.GetValue(item.Entity);
+
+                        var hash = Set<ApprovalHash>().FirstOrDefault(n => n.Id == idVal.ToString());
+                        if (hash == null)
+                        {
+                            throw new InvalidOperationException($"Unable to persist the entity: " +
+                                $"{item.Entity.GetType().Name} to backing store because it contains no " +
+                                $"approval hash Id");
+                        }
+
+                        // if the status changed then ensure the hasdId was created not more than 1 min ago or less
                         if ((int)currValue != (int)item.OriginalValues.GetValue<ApprovalStatus>(nameof(ApprovalBaseModel.ApprovalStatus)))
                         {
-                            var hasIdInfo = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalHashId));
-                            var idVal = hasIdInfo.GetValue(item.Entity);
-
-                            // ensure the hasdId was created not more than 1 min ago or less
-                            var hash = Set<ApprovalHash>().FirstOrDefault(n => n.Id == idVal.ToString());
-                            if (hash == null || hash.DateCreated > DateTime.Now.Subtract(TimeSpan.FromMinutes(1)))
+                            if (hash.DateCreated > DateTime.Now.Subtract(TimeSpan.FromMinutes(1)))
                             {
                                 throw new InvalidOperationException($"Unable to persist the entity: " +
-                                    $"{item.Entity.GetType().Name} to backing store because it contains no " +
-                                    $"approval hash Id or the approval hash Id was issued older than expected.");
+                                    $"{item.Entity.GetType().Name} to backing store because the approval " +
+                                    $"hash Id is issued older than expected.");
                             }
                         }
                     }
 
                     /**
+                     * Goal:
+                     * If an entity changed then, we should determine if its an IApprovableEntity
+                     * If it is then it needs to go for approval again. We do that by cloning the 
+                     * item, creating a new one and sending the new one for approval
+                     * 
+                     * if we don't do this here, it means every consumer who wants to modify an entity
+                     * will have to create the shadow manually. (This could be useful for complex cases)
+                     * 
                      * Algorithm
                      * - clone the entity and create new one
-                     * - set the shadowId to the cloned to id of the old one
+                     * - set the shadowId to the id of the old one
                      * - detach the old one from the context
                      * - 
                      * - Issues
-                     * - what if the target was to change the original because its approved?
+                     * - 1. what if the target was to change the original because its approved?
+                     * - 2. How do we know the ApprovalType for this item so we start the approval process
                      * 
                      * - Solution
                      * - if the id is in shadowIds list above, ignore cloning
@@ -219,30 +238,34 @@ namespace ApprovalSystem.Data
                      * - the entity is being tracked
                      * - for the new one which was created as a clone to be reviewed,
                      * - the user can delete it by themselves
+                     * 
+                     * 
+                     * Currently we haven't found a way to know the approval type for the entity from reflection
+                     * so we would let consumers create shadows and start approval manually
                     */
-                    var oIdInfo = item.Entity.GetType().GetProperty(nameof(BaseModel.Id));
-                    if(!ShadowIds.Contains(oIdInfo?.GetValue(item.Entity)))
-                    {
-                        item.State = EntityState.Detached;
-                        var newEntity = item.Entity;
+                    //var oIdInfo = item.Entity.GetType().GetProperty(nameof(BaseModel.Id));
+                    //if(!ShadowIds.Contains(oIdInfo?.GetValue(item.Entity)))
+                    //{
+                    //    item.State = EntityState.Detached;
+                    //    var newEntity = item.Entity;
 
-                        var shadowInfo = newEntity.GetType().GetProperty(nameof(ApprovalBaseModel.ShadowId));
-                        shadowInfo?.SetValue(newEntity, oIdInfo?.GetValue(item.Entity));
+                    //    var shadowInfo = newEntity.GetType().GetProperty(nameof(ApprovalBaseModel.ShadowId));
+                    //    shadowInfo?.SetValue(newEntity, oIdInfo?.GetValue(item.Entity));
 
-                        var idInfo = newEntity.GetType().GetProperty(nameof(ApprovalBaseModel.Id));
-                        idInfo?.SetValue(newEntity, 0);
+                    //    var idInfo = newEntity.GetType().GetProperty(nameof(ApprovalBaseModel.Id));
+                    //    idInfo?.SetValue(newEntity, 0);
 
-                        var statusInfo = newEntity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalStatus));
-                        statusInfo?.SetValue(newEntity, ApprovalStatus.Modified);
+                    //    var statusInfo = newEntity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalStatus));
+                    //    statusInfo?.SetValue(newEntity, ApprovalStatus.Modified);
 
-                        var newPropInfo = newEntity.GetType().GetProperty(nameof(BaseModel.DateCreated));
-                        newPropInfo?.SetValue(newEntity, new DateTimeOffset(new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)));
+                    //    var newPropInfo = newEntity.GetType().GetProperty(nameof(BaseModel.DateCreated));
+                    //    newPropInfo?.SetValue(newEntity, new DateTimeOffset(new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)));
 
-                        var newPropUser = newEntity.GetType().GetProperty(nameof(BaseModel.CreatedById));
-                        newPropUser?.SetValue(newEntity, user?.Id);
+                    //    var newPropUser = newEntity.GetType().GetProperty(nameof(BaseModel.CreatedById));
+                    //    newPropUser?.SetValue(newEntity, user?.Id);
 
-                        Add(newEntity);
-                    }
+                    //    Add(newEntity);
+                    //}
 
                     var lastPropInfo = item.Entity.GetType().GetProperty(nameof(BaseModel.LastUpdated));
                     var lastPropUser = item.Entity.GetType().GetProperty(nameof(BaseModel.UpdatedById));
@@ -250,34 +273,17 @@ namespace ApprovalSystem.Data
                     lastPropInfo?.SetValue(item.Entity, new DateTimeOffset(new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)));
                     lastPropUser?.SetValue(item.Entity, user?.Id);
 
-                    rsState?.SetValue(item.Entity, ApprovalStatus.Modified);
-
-                    // should we let the approver create the ApprovalHash for it or be automatically handled here
-                    //var state = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ResourceState));
-                    //if (state != null)
-                    //{
-                    //    var newState = (ResourceState)state.GetValue(item.Entity);
-                    //    if (newState == ResourceState.Active)
-                    //    {
-                    //        // create a hash for the entity anytime its value has been modified and it is approved
-                    //        ApprovalHash hash = new()
-                    //        {
-                    //            CreatedById = user == null ? default : user!.Id,
-                    //            DateCreated = new DateTimeOffset(new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
-                    //        };
-
-                    //        var hashProp = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalHashId));
-                    //        hashProp?.SetValue(item.Entity, hash.Id);
-                    //    }
-                    //}
+                    aprStatProp?.SetValue(item.Entity, ApprovalStatus.Modified);
                 }
                 else if (item.State == EntityState.Added)
                 {
                     // enforce that every new entity of type IApprovableEntity is created with a PendingApproval state
                     // even though the creator might have set it different.
                     // if the property is not found probably its not an IApprovableEntity
-                    var rsState = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalStatus));
-                    rsState?.SetValue(item.Entity, ApprovalStatus.New);
+                    var apState = item.Entity.GetType().GetProperty(nameof(ApprovalBaseModel.ApprovalStatus));
+                    apState?.SetValue(item.Entity, ApprovalStatus.New);
+
+                    // update audit fields
 
                     var newPropInfo = item.Entity.GetType().GetProperty(nameof(BaseModel.DateCreated));
                     newPropInfo?.SetValue(item.Entity, new DateTimeOffset(new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)));

@@ -85,4 +85,55 @@ namespace ApprovalSystem.Dtos
             };
         }
     }
+
+    public class ApprovalRequestItem
+    {
+        public long Id { get; set; }
+
+        public ApprovalType ApprovalType { get; set; }
+
+        public byte CurrentStep { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public RequestAction RequestAction { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public ApprovalItemStatus RequestStatus { get; set; }
+    }
+    public class ApprovalRequestDetails
+    {
+        public long Id { get; set; }
+
+        public string ApprovalType { get; set; }
+
+        public byte CurrentStep { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public ApprovalStepRule StepRule { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public RequestAction RequestAction { get; set; }
+
+        public object PreviousState { get; set; }
+
+        public object NewState { get; set; }
+
+        public IEnumerable<ApprovalHistoryItem> History { get; set; }
+
+    }
+    public class ApprovalHistoryItem
+    {
+        public byte Step { get; set; }
+
+        public string Comments { get; set; }
+
+        public string ApprovingUser { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public ApprovalItemStatus Status { get; set; }
+
+        public DateTimeOffset DateRequested { get; set; }
+
+        public DateTimeOffset? DatePerformed { get; set; }
+    }
 }

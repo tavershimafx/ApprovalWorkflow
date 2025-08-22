@@ -4,13 +4,15 @@ namespace ApprovalSystem.Interfaces
 {
     public interface IApprovalStandard
     {
-        void GetApprovingEntity<T>(long entityId, bool includePreviousState = false) where T : class, IApprovingEntity<T>;
+        T GetApprovingEntity<T>(long entityId, bool includePreviousState = false) where T : class, IApprovingEntity;
 
-        void Approved(long entityId);
+        void UpdateEntity(long entityId, string hashId);
 
-        void Rejected(long entityId);
+        void OnApproved(long entityId, string hashId);
 
-        void StepChanged(long entityId, long stepId, byte stepOrder);
+        void OnRejected(long entityId, string hashId);
+
+        void OnStepChanged(long entityId, byte currentStep, int totalSteps);
     }
     
 }

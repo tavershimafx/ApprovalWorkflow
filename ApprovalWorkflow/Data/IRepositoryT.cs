@@ -63,5 +63,6 @@ namespace ApprovalSystem.Data
         void DeleteRange(IEnumerable<T> entities);
 
         void Update(T model);
+        void UpdateRange(IEnumerable<T> entities);
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace ApprovalSystem.Types
 {
-    public interface IApprovingEntity<T> where T : class
+    public interface IApprovingEntity
     {
-        public T CurrentState { get; set; }
+        public object NewState { get; set; }
 
-        public T PreviousState { get; set; }
+        public object PreviousState { get; set; }
     }
 }

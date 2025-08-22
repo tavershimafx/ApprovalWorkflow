@@ -143,8 +143,17 @@ namespace ApprovalSystem.Data
         {
             if (model != null)
             {
-                Context.ShadowIds.Add(model.Id);
+                //Context.ShadowIds.Add(model.Id);
                 DbSet.Update(model);
+            }
+        }
+
+        public void UpdateRange(IEnumerable<T> models)
+        {
+            if (models != null && models.Any())
+            {
+                //Context.ShadowIds.Add(model.Id);
+                DbSet.UpdateRange(models);
             }
         }
 
@@ -152,7 +161,7 @@ namespace ApprovalSystem.Data
         {
             if (typeof(T).IsAssignableTo(typeof(IApprovableEntity<K>)))
                 throw new InvalidOperationException("Cannot perform the requested operation because the related entity is of type" +
-                    "IApprovableEntity. Use the appropriate repository interface to access or modify the related entity");
+                    $"{typeof(IApprovableEntity<K>).Name}. Use the appropriate repository interface to access or modify the related entity");
         }
     }
 }
